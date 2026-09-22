@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aloha News Portal - ハワイ最新観光速報</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
+    body { font-family: 'Noto Sans JP', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- ヘッダー -->
+  <header class="bg-gradient-to-r from-teal-600 via-cyan-600 to-sky-600 text-white shadow-md">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <i class="fa-solid fa-umbrella-beach text-3xl text-amber-300"></i>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Aloha News Portal</h1>
+          <p class="text-xs text-teal-100">日本人旅行者のためのハワイ最新ニュース＆お役立ち情報</p>
+        </div>
+      </div>
+      <!-- 現地時計 & 為替ウィジェット -->
+      <div class="flex gap-4 text-xs sm:text-sm bg-white/10 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/20">
+        <div>
+          <span class="text-teal-200 block text-[10px] font-semibold">HONOLULU TIME</span>
+          <span id="honolulu-clock" class="font-mono font-bold">読み込み中...</span>
+        </div>
+        <div class="border-l border-white/20 pl-4">
+          <span class="text-teal-200 block text-[10px] font-semibold">USD/JPY 参考目安</span>
+          <span class="font-mono font-bold">約 $1 = ¥155</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 速報ティッカー -->
+  <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs sm:text-sm text-amber-900 flex items-center gap-3 overflow-hidden">
+    <span class="bg-amber-500 text-white px-2 py-0.5 rounded font-bold text-xs uppercase flex-shrink-0">重要</span>
+    <p class="truncate animate-pulse">
+      渡航前のESTA公式申請徹底・ダイヤモンドヘッド等の事前予約制・道路横断中の歩きスマホ罰金規制にご注意ください。
+    </p>
+  </div>
+
+  <!-- メインコンテンツ -->
+  <main class="max-w-6xl mx-auto px-4 py-8 flex-1 w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <!-- 左側：ニュースセクション (2カラム分) -->
+    <div class="lg:col-span-2 space-y-6">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-newspaper text-teal-600"></i> 最新ピックアップニュース
+        </h2>
+        <span id="update-badge" class="text-xs bg-teal-100 text-teal-800 font-medium px-2.5 py-0.5 rounded-full">毎日自動更新中</span>
+      </div>
+
+      <!-- ニュースリストの表示枠 -->
+      <div id="news-container" class="space-y-4">
+        <!-- 初期ダミー表示 -->
+        <div class="text-center py-12 text-slate-400">
+          <i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i>
+          <p>最新ニュースを読み込んでいます...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右側：便利ツール (1カラム分) -->
+    <aside class="space-y-6">
+      
+      <!-- チップ計算機 -->
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+        <h3 class="font-bold text-slate-800 text-base mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-calculator text-teal-600"></i> チップ＆総額カンタン計算
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">ハワイのレストランでは18〜20%が主流です。二重払い（伝票のGratuity表記）に注意！</p>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">お会計金額 ($)</label>
+            <input type="number" id="bill-amount" placeholder="50.00" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">チップ率</label>
+            <div class="grid grid-cols-3 gap-2 text-xs">
+              <button onclick="calcTip(15)" class="py-1.5 border rounded-lg hover:bg-teal-50 border-slate-300">15%</button>
+              <button onclick="calcTip(18)" class="py-1.5 border rounded-lg bg-teal-600 text-white font-bold border-teal-600">18% (標準)</button>
+              <button onclick="calcTip(20)" class="py-1.5 border rounded-lg hover:bg-teal-50 border-slate-300">20%</button>
+            </div>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-lg border text-sm mt-3 space-y-1 font-mono">
+            <div class="flex justify-between">
+              <span class="text-slate-600">チップ目安:</span>
+              <span id="tip-result" class="font-bold text-teal-600">$0.00</span>
+            </div>
+            <div class="flex justify-between text-base border-t pt-1">
+              <span class="font-bold text-slate-800">お支払い総額:</span>
+              <span id="total-result" class="font-bold text-slate-800">$0.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 緊急連絡先メモ -->
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+        <h3 class="font-bold text-slate-800 text-base mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-phone-volume text-rose-500"></i> 現地緊急連絡先
+        </h3>
+        <ul class="text-xs space-y-2 text-slate-600">
+          <li class="flex justify-between border-b pb-1">
+            <span>緊急（警察・救急・消防）:</span>
+            <span class="font-bold text-rose-600">911</span>
+          </li>
+          <li class="flex justify-between border-b pb-1">
+            <span>在ホノルル日本国総領事館:</span>
+            <span class="font-mono">+1-808-543-3111</span>
+          </li>
+          <li class="flex justify-between">
+            <span>ワイキキ緊急医療クリニック:</span>
+            <span class="font-mono">+1-808-924-3399</span>
+          </li>
+        </ul>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- フッター -->
+  <footer class="bg-slate-800 text-slate-400 py-6 text-center text-xs border-t border-slate-700 mt-auto">
+    <p>© Aloha News Portal. 日本人観光客向け最新ハワイ現地情報。</p>
+  </footer>
+
+  <script>
+    // ホノルル現地時刻表示 (UTC-10)
+    function updateClock() {
+      const now = new Date();
+      const options = {
+        timeZone: 'Pacific/Honolulu',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false
+      };
+      const formatter = new Intl.DateTimeFormat('ja-JP', options);
+      const clockElem = document.getElementById('honolulu-clock');
+      if (clockElem) clockElem.innerText = formatter.format(now);
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // チップ計算ロジック
+    function calcTip(rate) {
+      const bill = parseFloat(document.getElementById('bill-amount').value) || 0;
+      const tip = bill * (rate / 100);
+      const total = bill + tip;
+      document.getElementById('tip-result').innerText = '$' + tip.toFixed(2);
+      document.getElementById('total-result').innerText = '$' + total.toFixed(2);
+    }
+    document.getElementById('bill-amount').addEventListener('input', () => calcTip(18));
+
+    // ニュースデータの読み込み
+    async function loadNews() {
+      const container = document.getElementById('news-container');
+      try {
+        const response = await fetch('news.json');
+        if (!response.ok) throw new Error('Not found');
+        const newsList = await response.json();
+
+        container.innerHTML = '';
+        newsList.forEach(item => {
+          const card = document.createElement('article');
+          card.className = 'bg-white p-5 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition';
+          card.innerHTML = `
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-xs bg-teal-50 text-teal-700 font-semibold px-2 py-0.5 rounded border border-teal-200">${item.category || '観光・渡航'}</span>
+              <span class="text-xs text-slate-400">${item.date || ''}</span>
+            </div>
+            <h3 class="text-base sm:text-lg font-bold text-slate-800 mb-2">${item.title}</h3>
+            <p class="text-sm text-slate-600 leading-relaxed mb-3">${item.summary}</p>
+            ${item.link ? `<a href="${item.link}" target="_blank" rel="noopener noreferrer" class="text-xs text-teal-600 font-bold hover:underline flex items-center gap-1">元記事を読む <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>` : ''}
+          `;
+          container.appendChild(card);
+        });
+      } catch (err) {
+        // news.json がまだ無い場合の初期案内
+        container.innerHTML = `
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 space-y-4">
+            <h3 class="text-base font-bold text-slate-800">🌺 Aloha News Portal へようこそ！</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">
+              現在、自動配信システムの初回準備中です。<br>
+              次の手順で自動更新プログラム（news.json を生成する仕組み）を追加すると、毎朝最新のハワイニュースがここに自動表示されます。
+            </p>
+          </div>
+        `;
+      }
+    }
+    loadNews();
+  </script>
+</body>
+</html>
